@@ -1,3 +1,5 @@
+import os
+
 import chromadb
 
 from sentence_transformers import SentenceTransformer
@@ -8,10 +10,23 @@ model = SentenceTransformer(
 )
 
 
+BASE_DIR = os.path.dirname(
+    os.path.dirname(
+        os.path.abspath(__file__)
+    )
+)
+
+DB_PATH = os.path.join(
+    BASE_DIR,
+    "data",
+    "chroma_db"
+)
+
+
 def search_documents(query):
 
     client = chromadb.PersistentClient(
-        path="data/chroma_db"
+        path=DB_PATH
     )
 
     collection = client.get_collection(
@@ -33,7 +48,10 @@ def search_documents(query):
 
     formatted_results = []
 
-    for doc, meta in zip(documents, metadatas):
+    for doc, meta in zip(
+        documents,
+        metadatas
+    ):
 
         formatted_results.append(
             {
