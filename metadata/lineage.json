@@ -1,0 +1,14 @@
+{
+    "gold_customers": [
+        "CRM",
+        "bronze_customers",
+        "silver_customers",
+        "gold_customers"
+    ],
+    "gold_orders": [
+        "Ecommerce",
+        "bronze_orders",
+        "silver_orders",
+        "gold_orders"
+    ]
+}

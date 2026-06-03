@@ -1,0 +1,26 @@
+Service Level Objectives
+
+Customer Pipeline
+Availability Target:
+99.9%
+
+Maximum Delay:
+30 minutes
+
+Orders Pipeline
+Availability Target:
+99.95%
+
+Maximum Delay:
+15 minutes
+
+Incident Escalation Rules
+
+Severity 1:
+Immediate escalation
+
+Severity 2:
+Escalate within 30 minutes
+
+Severity 3:
+Escalate within 4 hours

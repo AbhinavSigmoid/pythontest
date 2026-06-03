@@ -1,0 +1,43 @@
+Orders Pipeline Documentation
+
+Purpose:
+The Orders Pipeline processes customer purchase transactions.
+
+Source System:
+Ecommerce Platform
+
+Destination:
+Snowflake Data Warehouse
+
+Pipeline Schedule:
+Runs every hour.
+
+Owner:
+Commerce Analytics Team
+
+Tables Generated:
+
+* bronze_orders
+* silver_orders
+* gold_orders
+
+Data Fields:
+
+* order_id
+* customer_id
+* product_id
+* quantity
+* order_amount
+* order_date
+
+Data Quality Checks:
+
+* Missing order validation
+* Negative quantity validation
+* Duplicate order validation
+
+Expected Daily Volume:
+2 million records
+
+SLA:
+99.95% successful execution.

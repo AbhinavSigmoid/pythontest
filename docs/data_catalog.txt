@@ -1,0 +1,44 @@
+Enterprise Data Catalog
+
+Table: gold_customers
+Owner: Data Engineering Team
+Contains PII: Yes
+
+Columns:
+customer_id
+first_name
+last_name
+email
+phone_number
+city
+country
+
+Table: gold_orders
+Owner: Commerce Analytics Team
+Contains PII: No
+
+Columns:
+order_id
+customer_id
+product_id
+quantity
+order_amount
+order_date
+
+Lineage:
+
+CRM
+->
+bronze_customers
+->
+silver_customers
+->
+gold_customers
+
+Ecommerce
+->
+bronze_orders
+->
+silver_orders
+->
+gold_orders

@@ -1,0 +1,49 @@
+Customer Pipeline Documentation
+
+Purpose:
+The Customer Pipeline loads customer information from the CRM system into the enterprise data warehouse.
+
+Source System:
+Salesforce CRM
+
+Destination:
+Snowflake Data Warehouse
+
+Pipeline Schedule:
+Runs every 2 hours.
+
+Owner:
+Data Engineering Team
+
+Tables Generated:
+
+* bronze_customers
+* silver_customers
+* gold_customers
+
+Data Fields:
+
+* customer_id
+* first_name
+* last_name
+* email
+* phone_number
+* city
+* country
+
+PII Fields:
+
+* email
+* phone_number
+
+Data Quality Checks:
+
+* Null email validation
+* Duplicate customer detection
+* Country code validation
+
+Expected Daily Volume:
+500,000 records
+
+SLA:
+99.9% successful execution.
