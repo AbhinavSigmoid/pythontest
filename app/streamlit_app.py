@@ -1,6 +1,7 @@
 import sys
 import os
 import json
+import time
 import plotly.graph_objects as go
 
 sys.path.append(
@@ -15,6 +16,19 @@ import streamlit as st
 
 from rag.chatbot import ask_question
 from agents.health_agent import get_pipeline_health
+
+# Import ingestion scripts
+try:
+    from scripts.auto_indexer import process_pdf
+    from scripts.s3_uploader import upload_file
+except ImportError:
+    try:
+        sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts"))
+        from auto_indexer import process_pdf
+        from s3_uploader import upload_file
+    except ImportError:
+        process_pdf = None
+        upload_file = None
 from rag.voice_transcriber import transcribe_audio
 
 BASE_DIR = os.path.dirname(
@@ -1426,6 +1440,118 @@ if page == "Upload Center":
             </p>
         </div>
         """, unsafe_allow_html=True)
+
+        if "pdf_uploader_key" not in st.session_state:
+            st.session_state["pdf_uploader_key"] = 0
+
+        # Direct PDF Upload Panel
+        with st.container(border=True):
+            st.markdown(
+                f"""
+                <div style='display: flex; align-items: center; gap: 6px; margin-bottom: 8px;'>
+                    <span class='material-symbols-outlined' style='font-size: 18px; color: {c_text_headings};'>cloud_upload</span>
+                    <span style='color: {c_text_headings}; font-size: 14px; font-weight: 600; text-transform: uppercase;'>Upload & Ingest New Document</span>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            uploaded_file = st.file_uploader(
+                "Upload a PDF runbook or documentation file directly:",
+                type=["pdf"],
+                label_visibility="collapsed",
+                key=f"pdf_direct_uploader_{st.session_state['pdf_uploader_key']}"
+            )
+            
+            if uploaded_file is not None:
+                file_name = uploaded_file.name
+                file_path = os.path.join(UPLOAD_DIR, file_name)
+                
+                if not os.path.exists(file_path):
+                    with st.spinner(f"Saving {file_name} locally..."):
+                        os.makedirs(UPLOAD_DIR, exist_ok=True)
+                        with open(file_path, "wb") as f:
+                            f.write(uploaded_file.getbuffer())
+                    
+                    st.toast(f"Saved {file_name} to local directory.", icon="💾")
+                    
+                    # Try syncing to S3
+                    if upload_file is not None:
+                        try:
+                            with st.spinner(f"Syncing {file_name} to AWS S3..."):
+                                upload_file(file_path)
+                            st.toast(f"Uploaded {file_name} to S3.", icon="☁️")
+                        except Exception as s3_err:
+                            st.warning(f"S3 backup skipped: {s3_err}. Proceeding with local indexing.")
+                    
+                    # Process and index PDF
+                    if process_pdf is not None:
+                        try:
+                            with st.spinner("Processing & indexing PDF text into ChromaDB..."):
+                                process_pdf(file_path)
+                            st.success(f"Successfully processed and indexed '{file_name}'! The knowledge base is updated.")
+                            
+                            # Increment uploader key to clear widget selection on next rerun
+                            st.session_state["pdf_uploader_key"] += 1
+                            
+                            time.sleep(1.5)
+                            st.rerun()
+                        except Exception as idx_err:
+                            st.error(f"Failed to process/index PDF: {idx_err}")
+                    else:
+                        st.error("ChromaDB indexer function is not available. Please verify scripts/auto_indexer.py.")
+                else:
+                    st.info(f"File '{file_name}' is already indexed and present in the Document Index Center.")
+
+        # Document Selector & Viewer
+        try:
+            viewer_files = os.listdir(UPLOAD_DIR)
+            viewer_pdfs = sorted([f for f in viewer_files if f.endswith(".pdf")])
+        except Exception:
+            viewer_pdfs = []
+
+        if viewer_pdfs:
+            st.markdown(
+                f"""
+                <div style='display: flex; align-items: center; gap: 6px; margin-bottom: 8px;'>
+                    <span class='material-symbols-outlined' style='font-size: 18px; color: {c_text_headings};'>visibility</span>
+                    <span style='color: {c_text_headings}; font-size: 14px; font-weight: 600; text-transform: uppercase;'>Document Viewer</span>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            selected_pdf = st.selectbox(
+                "Select an indexed document to preview its content:",
+                options=viewer_pdfs,
+                index=None,
+                placeholder="Choose a PDF file to display...",
+                label_visibility="collapsed",
+                key="viewer_pdf_select"
+            )
+            
+            if selected_pdf:
+                file_path = os.path.join(UPLOAD_DIR, selected_pdf)
+                try:
+                    from ingestion.pdf_loader import load_pdf
+                    pdf_text = load_pdf(file_path)
+                    
+                    st.markdown(
+                        f"""
+                        <div class="custom-card" style="margin-top: 10px; margin-bottom: 25px;">
+                            <h4 style="margin-top: 0; margin-bottom: 12px; font-size: 16px; font-weight: 600; color: {c_text_headings}; display: flex; align-items: center; gap: 8px;">
+                                <span class="material-symbols-outlined" style="font-size: 20px; color: #2563EB;">menu_book</span>
+                                Extracted Content: {selected_pdf}
+                            </h4>
+                            <div style="max-height: 350px; overflow-y: auto; background: {c_nested_box_bg}; border: 1px solid {c_nested_box_border}; border-radius: 8px; padding: 18px; font-family: 'Outfit', sans-serif; white-space: pre-wrap; font-size: 13.5px; line-height: 1.6; color: {c_text_body};">
+{pdf_text}
+                            </div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+                except Exception as e:
+                    st.error(f"Error loading PDF: {e}")
+            
+            st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
 
         try:
             files = os.listdir(
