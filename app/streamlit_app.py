@@ -88,6 +88,11 @@ if st.session_state.theme_mode == "Dark":
     c_lineage_arrow = "#F3F4F6"
     c_sidebar_label = "#9CA3AF"
     c_text_muted = "#9CA3AF"
+    c_voice_bg = "linear-gradient(135deg, #1E1B4B 0%, #064E3B 100%)"
+    c_voice_border = "#312E81"
+    c_voice_title = "#C7D2FE"
+    c_voice_text = "#D1FAE5"
+    c_plotly_modebar_btn = "#9CA3AF"
 else:
     c_bg = "#F8FAFC"
     c_sidebar_bg = "#F2EBD9"
@@ -123,6 +128,11 @@ else:
     c_lineage_arrow = "#4E3629"
     c_sidebar_label = "#1E293B"
     c_text_muted = "#8D7B68"
+    c_voice_bg = "linear-gradient(135deg, #EEF2FF 0%, #F0FDF4 100%)"
+    c_voice_border = "#C7D2FE"
+    c_voice_title = "#4338CA"
+    c_voice_text = "#2C4068"
+    c_plotly_modebar_btn = "#4B5563"
 
 st.markdown(f"""
 <style>
@@ -344,11 +354,10 @@ div[data-testid="stMetric"]:hover {{
 div[data-testid="stMetric"] label, div[data-testid="stMetric"] [data-testid="stMetricValue"] {{
     color: {c_text_body} !important;
 }}
-
 /* Style main page secondary buttons */
-div[data-testid="stAppViewContainer"] button:not([data-testid="stSidebar"] *),
-div[data-testid="stAppViewContainer"] [data-testid="baseButton-secondary"]:not([data-testid="stSidebar"] *),
-div[data-testid="stAppViewContainer"] [data-testid="stBaseButton-secondary"]:not([data-testid="stSidebar"] *) {{
+div[data-testid="stAppViewContainer"] button:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn),
+div[data-testid="stAppViewContainer"] [data-testid="baseButton-secondary"]:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn),
+div[data-testid="stAppViewContainer"] [data-testid="stBaseButton-secondary"]:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn) {{
     background-color: {c_btn_bg} !important;
     color: {c_btn_text} !important;
     border: 1px solid {c_btn_border} !important;
@@ -360,34 +369,50 @@ div[data-testid="stAppViewContainer"] [data-testid="stBaseButton-secondary"]:not
 }}
 
 /* Ensure text inside main page secondary buttons is styled */
-div[data-testid="stAppViewContainer"] button:not([data-testid="stSidebar"] *) p,
-div[data-testid="stAppViewContainer"] button:not([data-testid="stSidebar"] *) span,
-div[data-testid="stAppViewContainer"] [data-testid="baseButton-secondary"]:not([data-testid="stSidebar"] *) p,
-div[data-testid="stAppViewContainer"] [data-testid="baseButton-secondary"]:not([data-testid="stSidebar"] *) span,
-div[data-testid="stAppViewContainer"] [data-testid="stBaseButton-secondary"]:not([data-testid="stSidebar"] *) p,
-div[data-testid="stAppViewContainer"] [data-testid="stBaseButton-secondary"]:not([data-testid="stSidebar"] *) span {{
+div[data-testid="stAppViewContainer"] button:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn) p,
+div[data-testid="stAppViewContainer"] button:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn) span,
+div[data-testid="stAppViewContainer"] [data-testid="baseButton-secondary"]:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn) p,
+div[data-testid="stAppViewContainer"] [data-testid="baseButton-secondary"]:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn) span,
+div[data-testid="stAppViewContainer"] [data-testid="stBaseButton-secondary"]:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn) p,
+div[data-testid="stAppViewContainer"] [data-testid="stBaseButton-secondary"]:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn) span {{
     color: {c_btn_text} !important;
     font-size: 15px !important;
     font-weight: 600 !important;
 }}
 
 /* Hover state for main page secondary buttons */
-div[data-testid="stAppViewContainer"] button:not([data-testid="stSidebar"] *):hover,
-div[data-testid="stAppViewContainer"] [data-testid="baseButton-secondary"]:not([data-testid="stSidebar"] *):hover,
-div[data-testid="stAppViewContainer"] [data-testid="stBaseButton-secondary"]:not([data-testid="stSidebar"] *):hover {{
+div[data-testid="stAppViewContainer"] button:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn):hover,
+div[data-testid="stAppViewContainer"] [data-testid="baseButton-secondary"]:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn):hover,
+div[data-testid="stAppViewContainer"] [data-testid="stBaseButton-secondary"]:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn):hover {{
     background-color: {c_btn_hover_bg} !important;
     border-color: {c_btn_hover_border} !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
     transform: translateY(-1px) !important;
 }}
 
-div[data-testid="stAppViewContainer"] button:not([data-testid="stSidebar"] *):hover p,
-div[data-testid="stAppViewContainer"] button:not([data-testid="stSidebar"] *):hover span,
-div[data-testid="stAppViewContainer"] [data-testid="baseButton-secondary"]:not([data-testid="stSidebar"] *):hover p,
-div[data-testid="stAppViewContainer"] [data-testid="baseButton-secondary"]:not([data-testid="stSidebar"] *):hover span,
-div[data-testid="stAppViewContainer"] [data-testid="stBaseButton-secondary"]:not([data-testid="stSidebar"] *):hover p,
-div[data-testid="stAppViewContainer"] [data-testid="stBaseButton-secondary"]:not([data-testid="stSidebar"] *):hover span {{
+div[data-testid="stAppViewContainer"] button:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn):hover p,
+div[data-testid="stAppViewContainer"] button:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn):hover span,
+div[data-testid="stAppViewContainer"] [data-testid="baseButton-secondary"]:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn):hover p,
+div[data-testid="stAppViewContainer"] [data-testid="baseButton-secondary"]:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn):hover span,
+div[data-testid="stAppViewContainer"] [data-testid="stBaseButton-secondary"]:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn):hover p,
+div[data-testid="stAppViewContainer"] [data-testid="stBaseButton-secondary"]:not([data-testid="stSidebar"] *):not([data-testid="stHeader"] *):not(.modebar-btn):hover span {{
     color: {c_btn_hover_text} !important;
+}}
+
+/* Header and Deploy buttons height fix */
+[data-testid="stHeader"] button,
+[data-testid="stHeader"] a,
+header button,
+header a,
+[data-testid="stHeaderDeployButton"],
+[data-testid="stHeaderDeployButton"] button,
+[data-testid="stHeaderDeployButton"] a,
+button[data-testid="stHeaderDeployButton"],
+a[data-testid="stHeaderDeployButton"] {{
+    min-height: 40px !important;
+    height: 40px !important;
+    padding: 6px 16px !important;
+    border:2px solid #871b1047 !important;
 }}
 
 /* Navigation buttons in the sidebar */
@@ -511,6 +536,61 @@ div[data-testid="stAppViewContainer"] [data-testid="stBaseButton-secondary"]:not
     font-weight: 600;
 }}
 
+/* Theme-aware Streamlit Expander Header styling */
+[data-testid="stExpander"] summary,
+[data-testid="stExpander"] summary p,
+[data-testid="stExpander"] summary span,
+[data-testid="stExpander"] summary svg {{
+    color: {c_text_headings} !important;
+    fill: {c_text_headings} !important;
+}}
+
+.voice-input-card {{
+    background: {c_voice_bg} !important;
+    border: 1.5px solid {c_voice_border} !important;
+    border-radius: 16px !important;
+    padding: 18px 22px !important;
+    margin-bottom: 14px !important;
+}}
+
+.voice-input-card .voice-title {{
+    color: {c_voice_title} !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+    margin: 0 0 10px 0 !important;
+}}
+
+.voice-input-card .voice-desc {{
+    color: {c_voice_text} !important;
+    font-size: 13px !important;
+    margin: 0 !important;
+}}
+
+/* Plotly Modebar (Hover buttons) style visibility */
+.modebar {{
+    background-color: transparent !important;
+}}
+.modebar-btn {{
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 4px !important;
+    min-height: auto !important;
+    height: auto !important;
+    width: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}}
+.modebar-btn path {{
+    fill: {c_plotly_modebar_btn} !important;
+    stroke: {c_plotly_modebar_btn} !important;
+}}
+.modebar-btn:hover path {{
+    fill: #3B82F6 !important;
+    stroke: #3B82F6 !important;
+}}
+
 /* Agent Card and Pulse Radar styles */
 .agent-status-card {{
     background: {c_card_bg} !important;
@@ -598,8 +678,9 @@ with st.sidebar:
     st.markdown("<div style='height: 5px;'></div>", unsafe_allow_html=True)
     
     # UI Theme Mode toggle
+    toggle_label = "Dark Mode" if st.session_state.theme_mode == "Dark" else "Light Mode"
     theme_toggle_val = st.toggle(
-        "Dark Mode",
+        toggle_label,
         value=(st.session_state.theme_mode == "Dark"),
         key="theme_toggle_switch"
     )
@@ -846,15 +927,49 @@ if page == "Dashboard":
             <div style="display: grid; gap: 12px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: {c_nested_box_bg}; border-radius: 8px; border: 1px solid {c_nested_box_border};">
                     <span style="font-weight: 500;">Gemini AI Integration</span>
-                    <span class="status-badge online" style="background-color: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2);"><span class="pulse-dot"></span>Active</span>
-                </div>
+<span class="status-badge online" style="
+background-color: rgba(16, 185, 129, 0.1);
+color: #059669;
+border: 1px solid rgba(16, 185, 129, 0.2);
+border-radius: 16px;
+width: 120px;
+height: 38px;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+box-sizing: border-box;
+">
+<span class="pulse-dot"></span>Active
+</span>                </div>
                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: {c_nested_box_bg}; border-radius: 8px; border: 1px solid {c_nested_box_border};">
                     <span style="font-weight: 500;">AWS S3 Cloud Sync</span>
-                    <span class="status-badge online" style="background-color: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2);"><span class="pulse-dot"></span>Connected</span>
+                    <span class="status-badge online" style="
+background-color: rgba(16, 185, 129, 0.1);
+color: #059669;
+border: 1px solid rgba(16, 185, 129, 0.2);
+border-radius: 16px;
+width: 120px;
+height: 38px;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+box-sizing: border-box;
+"><span class="pulse-dot"></span>Connected</span>
                 </div>
                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: {c_nested_box_bg}; border-radius: 8px; border: 1px solid {c_nested_box_border};">
                     <span style="font-weight: 500;">ChromaDB Vector Store</span>
-                    <span class="status-badge online" style="background-color: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2);"><span class="pulse-dot"></span>Healthy</span>
+                    <span class="status-badge online" style="
+background-color: rgba(16, 185, 129, 0.1);
+color: #059669;
+border: 1px solid rgba(16, 185, 129, 0.2);
+border-radius: 16px;
+width: 120px;
+height: 38px;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+box-sizing: border-box;
+"><span class="pulse-dot"></span>Healthy</span>
                 </div>
             </div>
         </div>
@@ -911,17 +1026,11 @@ if page == "AI Assistant":
     # =====================================
 
     st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #EEF2FF 0%, #F0FDF4 100%);
-        border: 1.5px solid #C7D2FE;
-        border-radius: 16px;
-        padding: 18px 22px;
-        margin-bottom: 14px;
-    ">
-        <p style="margin:0 0 10px 0; font-weight:600; color:#4338CA; font-size:15px;">
+    <div class="voice-input-card">
+        <p class="voice-title">
             🎙️ Voice Input — Speak your question
         </p>
-        <p style="margin:0; color:#64748B; font-size:13px;">
+        <p class="voice-desc">
             Click the microphone below, record your question, then click Stop.
             Your speech will be transcribed and sent to the assistant automatically.
         </p>
@@ -1032,10 +1141,13 @@ if page == "Pipeline Health":
                             <span class="material-symbols-outlined" style="font-size: 20px; color: #2563EB;">{p_icon}</span>
                             {p_title}
                         </h4>
-                        <span class="status-badge online" style="background-color: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2);"><span class="pulse-dot"></span>{p_data.get('status', 'Operational')}</span>
+                        <span class="status-badge online" style="background-color: rgba(16, 185, 129, 0.1); color: #059669; border: 1.5px solid rgba(16, 185, 129, 0.3); border-radius: 20px; padding: 4px 12px; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;"><span class="pulse-dot"></span>{p_data.get('status', 'Operational')}</span>
                     </div>
                     <div style="display: grid; gap: 10px; font-size: 14px;">
-                        <div style="display: flex; justify-content: space-between;"><span style="color: #8D7B68 !important;">Uptime Availability</span><span style="font-weight:600; color: #059669 !important;">{p_data.get('availability', '99.90%')}</span></div>
+                        <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #8D7B68 !important;">Uptime Availability</span>
+                        <span style="font-weight:600; color: #059669 !important;">{p_data.get('availability', '99.90%')}</span>
+                        </div>
                         <div style="display: flex; justify-content: space-between;"><span style="color: #8D7B68 !important;">Last Sync Time</span><span style="font-weight:500;">{p_data.get('last_run', 'Success')}</span></div>
                         <div style="display: flex; justify-content: space-between;"><span style="color: #8D7B68 !important;">Target SLA</span><span style="font-weight:500;">{p_data.get('sla', 'Met')}</span></div>
                     </div>
@@ -1066,21 +1178,35 @@ if page == "Pipeline Health":
             )
         )
         min_y = min(y_vals) - 0.1 if y_vals else 99.0
+        
+        # Dynamic styling based on selected theme mode
+        chart_text_color = "#E5E7EB" if st.session_state.theme_mode == "Dark" else "#0F172A"
+        grid_color = "rgba(255, 255, 255, 0.08)" if st.session_state.theme_mode == "Dark" else "rgba(0, 0, 0, 0.08)"
+        
         fig.update_layout(
-            title="Uptime Availability Actual vs Target (%)",
+            title=dict(
+                text="Uptime Availability Actual vs Target (%)",
+                font=dict(color=chart_text_color, family='Outfit', size=16)
+            ),
             yaxis_title="Availability %",
             yaxis_range=[min(min_y, 99.5), 100.0],
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(color='#0F172A', family='Outfit'),
+            font=dict(color=chart_text_color, family='Outfit'),
             height=320,
-            margin=dict(l=40, r=40, t=50, b=40)
+            margin=dict(l=40, r=40, t=50, b=40),
+            modebar=dict(
+                bgcolor='rgba(0,0,0,0)',
+                color=chart_text_color,
+                activecolor='#3B82F6'
+            )
         )
-        fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.05)')
+        fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor=grid_color)
         
         st.plotly_chart(
             fig,
-            use_container_width=True
+            use_container_width=True,
+            theme=None
         )
 
     st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
@@ -1174,7 +1300,7 @@ if page == "Data Catalog":
             with col_col2:
                 st.markdown("<div style='font-size: 13px; font-weight:600; color: #64748B; margin-bottom: 8px;'>COLUMNS & PHYSICAL SCHEMA</div>", unsafe_allow_html=True)
                 for col in table["columns"]:
-                    st.markdown(f"- `<code style='color: #2563EB; background: transparent; padding: 0;'>{col}</code>`", unsafe_allow_html=True)
+                    st.markdown(f"- <code style='color: #2563EB; background: transparent; padding: 0;'>{col}</code>", unsafe_allow_html=True)
 
 # =====================================
 # LINEAGE TAB
