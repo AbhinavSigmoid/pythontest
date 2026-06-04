@@ -1,14 +1,39 @@
 {
-    "gold_customers": [
-        "CRM",
-        "bronze_customers",
-        "silver_customers",
-        "gold_customers"
-    ],
-    "gold_orders": [
-        "Ecommerce",
-        "bronze_orders",
-        "silver_orders",
-        "gold_orders"
-    ]
+    "users_data": {
+        "flow": [
+            "Raw_Users_Data",
+            "Bronze_Users_Data"
+        ],
+        "insights": "This table stores raw user demographic and contact information, acting as a primary source for user-related data. It is ingested directly from an operational database or CRM system."
+    },
+    "products": {
+        "flow": [
+            "Raw_Products_Data",
+            "Bronze_Products"
+        ],
+        "insights": "This table contains raw product details, including pricing and categorization. It is sourced from a product catalog system."
+    },
+    "orders": {
+        "flow": [
+            "Raw_Orders_Data",
+            "Bronze_Orders"
+        ],
+        "insights": "This table captures raw customer order information, including total amounts and order dates, linked to user IDs. It is sourced from an e-commerce platform's transactional database."
+    },
+    "fact_sales": {
+        "flow": [
+            "Bronze_Users_Data",
+            "Bronze_Products",
+            "Bronze_Orders",
+            "Silver_Fact_Sales"
+        ],
+        "insights": "This is a central fact table combining user, product, and order details to represent individual sales transactions. It enriches raw order data by linking to user and product dimensions, calculating total revenue per line item. This table serves as the foundation for various sales analytics, populated by an Airflow ETL not explicitly defined in the provided files."
+    },
+    "monthly_revenue": {
+        "flow": [
+            "Silver_Fact_Sales",
+            "Gold_Monthly_Revenue"
+        ],
+        "insights": "This table provides an executive-level summary of monthly sales performance. It aggregates the `fact_sales` table by month to calculate total revenue and total items sold, serving as a key performance indicator for business stakeholders and populated by the `monthly_executive_etl` Airflow DAG."
+    }
 }

@@ -1,0 +1,19 @@
+graph TD
+    A[Source: Operational DB/CRM] --> I1[Ingestion]
+    B[Source: Product Catalog] --> I1
+    C[Source: E-commerce Platform] --> I1
+
+    I1 --> T1[Table: users_data (Bronze)]
+    I1 --> T2[Table: products (Bronze)]
+    I1 --> T3[Table: orders (Bronze)]
+
+    subgraph Data Integration & Transformation
+        P1[Airflow ETL: Daily Sales Fact Population]
+        T1 & T2 & T3 --> P1
+        P1 --> T4[Table: fact_sales (Silver)]
+    end
+
+    T4 -- "Aggregates Data" --> P2[Airflow DAG: monthly_executive_etl]
+    P2 --> T5[Table: monthly_revenue (Gold)]
+
+    T5 --> R[BI Reporting / Analytics Dashboard]

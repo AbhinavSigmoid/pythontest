@@ -1,0 +1,20 @@
+{
+    "orders_pipeline": {
+        "status": "Healthy",
+        "availability": "99.95%",
+        "last_run": "Success",
+        "sla": "Met"
+    },
+    "customer_pipeline": {
+        "status": "Healthy",
+        "availability": "99.90%",
+        "last_run": "Success",
+        "sla": "Met"
+    },
+    "recent_incident": {
+        "incident_id": "INC-2026-001",
+        "pipeline": "Orders Pipeline",
+        "status": "Resolved",
+        "impact": "45 minute delay"
+    }
+}

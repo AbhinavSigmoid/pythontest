@@ -1,20 +1,14 @@
 {
-    "orders_pipeline": {
+    "monthly_executive_etl": {
         "status": "Healthy",
         "availability": "99.95%",
         "last_run": "Success",
         "sla": "Met"
     },
-    "customer_pipeline": {
-        "status": "Healthy",
-        "availability": "99.90%",
-        "last_run": "Success",
-        "sla": "Met"
-    },
     "recent_incident": {
         "incident_id": "INC-2026-001",
-        "pipeline": "Orders Pipeline",
+        "pipeline": "monthly_executive_etl",
         "status": "Resolved",
-        "impact": "45 minute delay"
+        "impact": "On 2026-03-05, the 'monthly_executive_etl' pipeline failed due to a data type mismatch error in the 'fact_sales' table, causing a delay in the generation of the executive monthly revenue report. The issue was traced to an upstream ingestion process and resolved within 4 hours, resulting in a delayed but accurate report."
     }
 }

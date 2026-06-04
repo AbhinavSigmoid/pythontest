@@ -1,29 +1,61 @@
 [
     {
-        "table_name": "gold_customers",
-        "owner": "Data Engineering Team",
+        "table_name": "users_data",
+        "owner": "data_engineering_team",
         "contains_pii": true,
         "columns": [
-            "customer_id",
+            "user_id",
             "first_name",
             "last_name",
             "email",
-            "phone_number",
-            "city",
-            "country"
+            "phone",
+            "created_at"
         ]
     },
     {
-        "table_name": "gold_orders",
-        "owner": "Commerce Analytics Team",
+        "table_name": "products",
+        "owner": "data_engineering_team",
+        "contains_pii": false,
+        "columns": [
+            "product_id",
+            "name",
+            "category",
+            "price"
+        ]
+    },
+    {
+        "table_name": "orders",
+        "owner": "data_engineering_team",
         "contains_pii": false,
         "columns": [
             "order_id",
-            "customer_id",
+            "user_id",
+            "total_amount",
+            "order_date"
+        ]
+    },
+    {
+        "table_name": "fact_sales",
+        "owner": "data_engineering_team",
+        "contains_pii": false,
+        "columns": [
+            "fact_id",
+            "order_date",
+            "user_id",
             "product_id",
             "quantity",
-            "order_amount",
-            "order_date"
+            "unit_price",
+            "total_revenue"
+        ]
+    },
+    {
+        "table_name": "monthly_revenue",
+        "owner": "data_engineering_team",
+        "contains_pii": false,
+        "columns": [
+            "report_month",
+            "total_revenue",
+            "total_items_sold"
         ]
     }
 ]
