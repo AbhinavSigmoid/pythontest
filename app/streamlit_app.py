@@ -791,7 +791,7 @@ with st.sidebar:
     try:
 
         with open(
-            "metadata/tables.json",
+            os.path.join(BASE_DIR, "metadata", "tables.json"),
             "r"
         ) as file:
 
@@ -1260,7 +1260,7 @@ if page == "Data Catalog":
     """, unsafe_allow_html=True)
 
     with open(
-        "metadata/tables.json",
+        os.path.join(BASE_DIR, "metadata", "tables.json"),
         "r"
     ) as file:
 
@@ -1321,7 +1321,7 @@ if page == "Lineage Explorer":
     """, unsafe_allow_html=True)
 
     with open(
-        "metadata/lineage.json",
+        os.path.join(BASE_DIR, "metadata", "lineage.json"),
         "r"
     ) as file:
 
