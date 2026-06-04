@@ -1,5 +1,12 @@
 import io
+import ssl
 import speech_recognition as sr
+
+# Bypass SSL verification to avoid [SSL: CERTIFICATE_VERIFY_FAILED] issues on macOS
+try:
+    ssl._create_default_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
 
 
 def transcribe_audio(audio_bytes: bytes) -> str:
@@ -35,8 +42,8 @@ def transcribe_audio(audio_bytes: bytes) -> str:
             audio_data = recognizer.record(source)
 
         # Send to Google's free Web Speech API for transcription
-        # No API key needed — uses the public endpoint
-        text = recognizer.recognize_google(audio_data)
+        # No API key needed — uses the public endpoint (using HTTPS to avoid 307 Temporary Redirects)
+        text = recognizer.recognize_google(audio_data, endpoint="https://www.google.com/speech-api/v2/recognize")
 
         return text
 
