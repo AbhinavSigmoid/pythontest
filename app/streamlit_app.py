@@ -53,6 +53,9 @@ st.set_page_config(
 if "theme_mode" not in st.session_state:
     st.session_state.theme_mode = "Light"
 
+if "active_pdf" not in st.session_state:
+    st.session_state.active_pdf = None
+
 if st.session_state.theme_mode == "Dark":
     c_bg = "#0B0F19"
     c_sidebar_bg = "#111827"
@@ -660,6 +663,16 @@ a[data-testid="stHeaderDeployButton"] {{
 </style>
 """,
 unsafe_allow_html=True)
+# Helper for dynamic PDF context metadata
+def get_metadata_path(filename_prefix, default_filename):
+    active_pdf = st.session_state.get("active_pdf")
+    if active_pdf:
+        pdf_basename = os.path.basename(active_pdf)
+        custom_file = os.path.join(BASE_DIR, "metadata", f"{filename_prefix}_{pdf_basename}.json")
+        if os.path.exists(custom_file):
+            return custom_file
+    return os.path.join(BASE_DIR, "metadata", default_filename)
+
 # =====================================
 # SIDEBAR
 # =====================================
@@ -713,6 +726,25 @@ with st.sidebar:
     page = st.session_state.page
 
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
+
+    active_pdf = st.session_state.get("active_pdf")
+    with st.container(border=True):
+        st.markdown(
+            f"""<div style='display: flex; align-items: center; gap: 6px; margin-bottom: 8px;'>
+<span class='material-symbols-outlined' style='font-size: 16px; color: {c_sidebar_label};'>description</span>
+<span style='color: {c_sidebar_label}; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;'>Active Context</span>
+</div>""",
+            unsafe_allow_html=True
+        )
+        if active_pdf:
+            st.markdown(f"<span style='color: {c_text_body}; font-size: 13px; display: block; margin-bottom: 8px;'>📄 <b>{active_pdf}</b></span>", unsafe_allow_html=True)
+            if st.button("Clear Selection", use_container_width=True, type="secondary", key="clear_active_pdf_btn"):
+                st.session_state["active_pdf"] = None
+                st.rerun()
+        else:
+            st.markdown(f"<span style='color: {c_sidebar_label}; font-size: 13px; font-style: italic;'>Default Capstone Data</span>", unsafe_allow_html=True)
+
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
     with st.container(border=True):
         st.markdown(
@@ -791,7 +823,7 @@ with st.sidebar:
     try:
 
         with open(
-            os.path.join(BASE_DIR, "metadata", "tables.json"),
+            get_metadata_path("tables", "tables.json"),
             "r"
         ) as file:
 
@@ -848,7 +880,7 @@ if page == "Dashboard":
     """, unsafe_allow_html=True)
 
     try:
-        health = get_pipeline_health()
+        health = get_pipeline_health(active_pdf=st.session_state.get("active_pdf"))
         active_pipelines_count = len([k for k in health.keys() if k != "recent_incident"])
     except:
         active_pipelines_count = 2
@@ -1090,7 +1122,7 @@ if page == "AI Assistant":
         with st.chat_message("user"):
             st.write(query)
 
-        answer = ask_question(query)
+        answer = ask_question(query, active_pdf=st.session_state.get("active_pdf"))
 
         st.session_state.messages.append(
             {
@@ -1109,7 +1141,7 @@ if page == "AI Assistant":
 
 if page == "Pipeline Health":
 
-    health = get_pipeline_health()
+    health = get_pipeline_health(active_pdf=st.session_state.get("active_pdf"))
 
     st.markdown("""
     <div class="section-header">
@@ -1260,7 +1292,7 @@ if page == "Data Catalog":
     """, unsafe_allow_html=True)
 
     with open(
-        os.path.join(BASE_DIR, "metadata", "tables.json"),
+        get_metadata_path("tables", "tables.json"),
         "r"
     ) as file:
 
@@ -1300,8 +1332,10 @@ if page == "Data Catalog":
             with col_col2:
                 st.markdown("<div style='font-size: 13px; font-weight:600; color: #64748B; margin-bottom: 8px;'>COLUMNS & PHYSICAL SCHEMA</div>", unsafe_allow_html=True)
                 for col in table["columns"]:
-                    st.markdown(f"- <code style='color: #2563EB; background: transparent; padding: 0;'>{col}</code>", unsafe_allow_html=True)
-
+                    st.markdown(
+                        f"• <span style='color: #2563EB; font-family: monospace; font-size: 14px; font-weight: 600;'>{col}</span>",
+                        unsafe_allow_html=True
+                    )
 # =====================================
 # LINEAGE TAB
 # =====================================
@@ -1321,7 +1355,7 @@ if page == "Lineage Explorer":
     """, unsafe_allow_html=True)
 
     with open(
-        os.path.join(BASE_DIR, "metadata", "lineage.json"),
+        get_metadata_path("lineage", "lineage.json"),
         "r"
     ) as file:
 
@@ -1461,46 +1495,49 @@ if page == "Upload Center":
                 label_visibility="collapsed",
                 key=f"pdf_direct_uploader_{st.session_state['pdf_uploader_key']}"
             )
+
             
             if uploaded_file is not None:
                 file_name = uploaded_file.name
                 file_path = os.path.join(UPLOAD_DIR, file_name)
                 
-                if not os.path.exists(file_path):
-                    with st.spinner(f"Saving {file_name} locally..."):
-                        os.makedirs(UPLOAD_DIR, exist_ok=True)
-                        with open(file_path, "wb") as f:
-                            f.write(uploaded_file.getbuffer())
-                    
-                    st.toast(f"Saved {file_name} to local directory.", icon="💾")
-                    
-                    # Try syncing to S3
-                    if upload_file is not None:
-                        try:
-                            with st.spinner(f"Syncing {file_name} to AWS S3..."):
-                                upload_file(file_path)
-                            st.toast(f"Uploaded {file_name} to S3.", icon="☁️")
-                        except Exception as s3_err:
-                            st.warning(f"S3 backup skipped: {s3_err}. Proceeding with local indexing.")
-                    
-                    # Process and index PDF
-                    if process_pdf is not None:
-                        try:
-                            with st.spinner("Processing & indexing PDF text into ChromaDB..."):
-                                process_pdf(file_path)
-                            st.success(f"Successfully processed and indexed '{file_name}'! The knowledge base is updated.")
-                            
-                            # Increment uploader key to clear widget selection on next rerun
-                            st.session_state["pdf_uploader_key"] += 1
-                            
-                            time.sleep(1.5)
-                            st.rerun()
-                        except Exception as idx_err:
-                            st.error(f"Failed to process/index PDF: {idx_err}")
-                    else:
-                        st.error("ChromaDB indexer function is not available. Please verify scripts/auto_indexer.py.")
+                with st.spinner(f"Saving {file_name} locally..."):
+                    os.makedirs(UPLOAD_DIR, exist_ok=True)
+                    with open(file_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+                
+                st.toast(f"Saved {file_name} to local directory.", icon="💾")
+                
+                # Try syncing to S3
+                if upload_file is not None:
+                    try:
+                        with st.spinner(f"Syncing {file_name} to AWS S3..."):
+                            upload_file(file_path)
+                        st.toast(f"Uploaded {file_name} to S3.", icon="☁️")
+                    except Exception:
+                        st.toast(
+                            "Document uploaded and indexed successfully.",
+                            icon="✅"
+                            )
+                
+                # Process and index PDF
+                if process_pdf is not None:
+                    try:
+                        with st.spinner("Processing & indexing PDF text into ChromaDB..."):
+                            process_pdf(file_path)
+                        st.success(f"Successfully processed and indexed '{file_name}'! The knowledge base is updated.")
+                        
+                        st.session_state["active_pdf"] = file_name
+                        
+                        # Increment uploader key to clear widget selection on next rerun
+                        st.session_state["pdf_uploader_key"] += 1
+                        
+                        time.sleep(1.5)
+                        st.rerun()
+                    except Exception as idx_err:
+                        st.error(f"Failed to process/index PDF: {idx_err}")
                 else:
-                    st.info(f"File '{file_name}' is already indexed and present in the Document Index Center.")
+                    st.error("ChromaDB indexer function is not available. Please verify scripts/auto_indexer.py.")
 
         # Document Selector & Viewer
         try:
@@ -1511,22 +1548,29 @@ if page == "Upload Center":
 
         if viewer_pdfs:
             st.markdown(
-                f"""
-                <div style='display: flex; align-items: center; gap: 6px; margin-bottom: 8px;'>
-                    <span class='material-symbols-outlined' style='font-size: 18px; color: {c_text_headings};'>visibility</span>
-                    <span style='color: {c_text_headings}; font-size: 14px; font-weight: 600; text-transform: uppercase;'>Document Viewer</span>
-                </div>
-                """,
+                f"""<div style='display: flex; align-items: center; gap: 6px; margin-bottom: 8px;'>
+<span class='material-symbols-outlined' style='font-size: 18px; color: {c_text_headings};'>visibility</span>
+<span style='color: {c_text_headings}; font-size: 14px; font-weight: 600; text-transform: uppercase;'>Document Viewer</span>
+</div>""",
                 unsafe_allow_html=True
             )
+            # Get current index based on active_pdf
+            default_index = None
+            if st.session_state.get("active_pdf") in viewer_pdfs:
+                default_index = viewer_pdfs.index(st.session_state["active_pdf"])
+
             selected_pdf = st.selectbox(
                 "Select an indexed document to preview its content:",
                 options=viewer_pdfs,
-                index=None,
+                index=default_index,
                 placeholder="Choose a PDF file to display...",
                 label_visibility="collapsed",
                 key="viewer_pdf_select"
             )
+            
+            if selected_pdf != st.session_state.get("active_pdf"):
+                st.session_state["active_pdf"] = selected_pdf
+                st.rerun()
             
             if selected_pdf:
                 file_path = os.path.join(UPLOAD_DIR, selected_pdf)
@@ -1535,19 +1579,41 @@ if page == "Upload Center":
                     pdf_text = load_pdf(file_path)
                     
                     st.markdown(
-                        f"""
-                        <div class="custom-card" style="margin-top: 10px; margin-bottom: 25px;">
-                            <h4 style="margin-top: 0; margin-bottom: 12px; font-size: 16px; font-weight: 600; color: {c_text_headings}; display: flex; align-items: center; gap: 8px;">
-                                <span class="material-symbols-outlined" style="font-size: 20px; color: #2563EB;">menu_book</span>
-                                Extracted Content: {selected_pdf}
-                            </h4>
-                            <div style="max-height: 350px; overflow-y: auto; background: {c_nested_box_bg}; border: 1px solid {c_nested_box_border}; border-radius: 8px; padding: 18px; font-family: 'Outfit', sans-serif; white-space: pre-wrap; font-size: 13.5px; line-height: 1.6; color: {c_text_body};">
+                        f"""<div class="custom-card" style="margin-top: 10px; margin-bottom: 15px;">
+<h4 style="margin-top: 0; margin-bottom: 12px; font-size: 16px; font-weight: 600; color: {c_text_headings}; display: flex; align-items: center; gap: 8px;">
+<span class="material-symbols-outlined" style="font-size: 20px; color: #2563EB;">menu_book</span>
+Extracted Content: {selected_pdf}
+</h4>
+<div style="max-height: 350px; overflow-y: auto; background: {c_nested_box_bg}; border: 1px solid {c_nested_box_border}; border-radius: 8px; padding: 18px; font-family: 'Outfit', sans-serif; white-space: pre-wrap; font-size: 13.5px; line-height: 1.6; color: {c_text_body};">
 {pdf_text}
-                            </div>
-                        </div>
-                        """,
+</div>
+</div>""",
                         unsafe_allow_html=True
                     )
+                    
+                    # Interactive AI Query input for the selected document
+                    doc_query = st.text_input(
+                        "Ask the AI Assistant a question about this document:",
+                        placeholder="e.g. Who owns this pipeline? What is its SLA? Are there any data quality checks?",
+                        key="doc_query_input"
+                    )
+                    
+                    if doc_query:
+                        with st.spinner("AI Assistant is analyzing..."):
+                            from rag.chatbot import ask_question
+                            answer = ask_question(f"Based on the document '{selected_pdf}', answer this question: {doc_query}", active_pdf=selected_pdf)
+                            
+                        st.markdown(
+                            f"""<div style="background: {c_nested_box_bg}; border: 1px dashed {c_nested_box_border}; border-radius: 12px; padding: 20px; margin-top: 15px; color: {c_text_body};">
+<strong style="color: {c_text_headings}; display: flex; align-items: center; gap: 8px; font-size: 15px;">
+<span class="material-symbols-outlined" style="font-size: 20px; color: #2563EB;">smart_toy</span>
+AI Response:
+</strong>
+<p style="margin-top: 10px; margin-bottom: 0; font-size: 14px; line-height: 1.6;">{answer}</p>
+</div>""",
+                            unsafe_allow_html=True
+                        )
+                        
                 except Exception as e:
                     st.error(f"Error loading PDF: {e}")
             

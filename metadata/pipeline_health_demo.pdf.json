@@ -1,0 +1,14 @@
+{
+    "Payments Pipeline": {
+        "status": "Healthy",
+        "availability": null,
+        "last_run": null,
+        "sla": "Breached"
+    },
+    "recent_incident": {
+        "incident_id": "INC-2026-101",
+        "pipeline": "Payments Pipeline",
+        "status": "Resolved",
+        "impact": "Stripe API Timeout caused a 20 Minute Delay, exceeding the maximum allowed delay of 10 minutes."
+    }
+}

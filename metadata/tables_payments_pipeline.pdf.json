@@ -1,0 +1,37 @@
+[
+    {
+        "table_name": "bronze_payments",
+        "owner": "Payments Engineering Team",
+        "contains_pii": false,
+        "columns": [
+            "payment_id",
+            "customer_id",
+            "transaction_timestamp",
+            "amount",
+            "payment_method"
+        ]
+    },
+    {
+        "table_name": "silver_payments",
+        "owner": "Payments Engineering Team",
+        "contains_pii": false,
+        "columns": [
+            "payment_id",
+            "customer_id",
+            "amount",
+            "payment_status",
+            "payment_method"
+        ]
+    },
+    {
+        "table_name": "gold_payments",
+        "owner": "Payments Engineering Team",
+        "contains_pii": true,
+        "columns": [
+            "payment_id",
+            "customer_id",
+            "total_amount",
+            "payment_status"
+        ]
+    }
+]

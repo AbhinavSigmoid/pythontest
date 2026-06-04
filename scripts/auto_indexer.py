@@ -16,11 +16,13 @@ from ingestion.embeddings import create_embeddings
 from rag.vector_store import store_chunks
 
 
-def extract_and_update_metadata(pdf_text):
+def extract_and_update_metadata(file_path, pdf_text):
     """
     Extracts structured schemas, lineage flows, health stats, and incidents from PDF text using Gemini
-    and merges them into the respective JSON configuration files in metadata/
+    and merges them into PDF-specific JSON configuration files in metadata/
     """
+    from dotenv import load_dotenv
+    load_dotenv(override=True)
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         print("GEMINI_API_KEY is not set. Skipping metadata extraction.")
@@ -87,7 +89,9 @@ def extract_and_update_metadata(pdf_text):
     metadata_dir = os.path.join(base_dir, "metadata")
     os.makedirs(metadata_dir, exist_ok=True)
 
-    # 1. Update tables.json
+    pdf_basename = os.path.basename(file_path)
+
+    # 1. Update tables_{pdf_basename}.json
     tables_file = os.path.join(metadata_dir, "tables.json")
     if os.path.exists(tables_file):
         try:
@@ -115,11 +119,11 @@ def extract_and_update_metadata(pdf_text):
         try:
             with open(tables_file, "w") as f:
                 json.dump(existing_tables, f, indent=4)
-            print("Successfully updated tables.json")
+            print(f"Successfully updated {tables_file}")
         except Exception as e:
-            print(f"Error writing tables.json: {e}")
+            print(f"Error writing {tables_file}: {e}")
 
-    # 2. Update lineage.json
+    # 2. Update lineage_{pdf_basename}.json
     lineage_file = os.path.join(metadata_dir, "lineage.json")
     if os.path.exists(lineage_file):
         try:
@@ -131,17 +135,36 @@ def extract_and_update_metadata(pdf_text):
         existing_lineage = {}
 
     new_lineage = extracted.get("lineage", {})
+
+    if isinstance(new_lineage, dict):
+
+        for table_name, lineage_info in new_lineage.items():
+
+            if isinstance(lineage_info, dict):
+
+                existing_lineage[table_name] = (
+                    lineage_info.get(
+                        "flow",
+                        []
+                    )
+                )
+
+            else:
+
+                existing_lineage[table_name] = (
+                    lineage_info
+            )
     if isinstance(new_lineage, dict):
         for k, v in new_lineage.items():
             existing_lineage[k] = v
         try:
             with open(lineage_file, "w") as f:
                 json.dump(existing_lineage, f, indent=4)
-            print("Successfully updated lineage.json")
+            print(f"Successfully updated {lineage_file}")
         except Exception as e:
-            print(f"Error writing lineage.json: {e}")
+            print(f"Error writing {lineage_file}: {e}")
 
-    # 3. Update pipeline_health.json
+    # 3. Update pipeline_health_{pdf_basename}.json
     health_file = os.path.join(metadata_dir, "pipeline_health.json")
     if os.path.exists(health_file):
         try:
@@ -165,9 +188,9 @@ def extract_and_update_metadata(pdf_text):
         try:
             with open(health_file, "w") as f:
                 json.dump(existing_health, f, indent=4)
-            print("Successfully updated pipeline_health.json")
+            print(f"Successfully updated {health_file}")
         except Exception as e:
-            print(f"Error writing pipeline_health.json: {e}")
+            print(f"Error writing {health_file}: {e}")
 
 
 def process_pdf(file_path):
@@ -207,7 +230,7 @@ def process_pdf(file_path):
 
     # Automatically extract structured metadata and update JSONs
     try:
-        extract_and_update_metadata(text)
+        extract_and_update_metadata(file_path, text)
         print("\nMetadata synced from PDF successfully.\n")
     except Exception as e:
         print(f"\nFailed to sync metadata from PDF: {e}\n")

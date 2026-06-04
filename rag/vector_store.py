@@ -1,4 +1,5 @@
 import chromadb
+import uuid
 
 
 def store_chunks(chunks, embeddings):
@@ -11,17 +12,36 @@ def store_chunks(chunks, embeddings):
         name="de_documents"
     )
 
+    try:
+
+        existing = collection.get()
+
+        if existing["ids"]:
+
+            collection.delete(
+                ids=existing["ids"]
+            )
+
+            print(
+                "Old documents cleared"
+            )
+
+    except Exception:
+        pass
+
     ids = []
-
     documents = []
-
     metadatas = []
 
-    for i, chunk in enumerate(chunks):
+    for chunk in chunks:
 
-        ids.append(f"chunk_{i}")
+        ids.append(
+            str(uuid.uuid4())
+        )
 
-        documents.append(chunk["chunk"])
+        documents.append(
+            chunk["chunk"]
+        )
 
         metadatas.append(
             {
@@ -36,4 +56,6 @@ def store_chunks(chunks, embeddings):
         metadatas=metadatas
     )
 
-    print("Chunks stored successfully")
+    print(
+        "Chunks stored successfully"
+    )

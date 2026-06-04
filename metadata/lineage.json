@@ -35,5 +35,29 @@
             "Gold_Monthly_Revenue"
         ],
         "insights": "This table provides an executive-level summary of monthly sales performance. It aggregates the `fact_sales` table by month to calculate total revenue and total items sold, serving as a key performance indicator for business stakeholders and populated by the `monthly_executive_etl` Airflow DAG."
+    },
+    "payments_pipeline": {
+        "flow": [
+            "bronze_payments",
+            "silver_payments",
+            "gold_payments"
+        ],
+        "insights": "The bronze layer stores raw payment events. The silver layer performs data cleansing, validation, and standardization. The gold layer contains curated payment metrics for business reporting."
+    },
+    "Payments Pipeline": {
+        "flow": [
+            "Stripe",
+            "Payments Pipeline",
+            "Snowflake"
+        ],
+        "insights": "Data flows from Stripe, processed by the Payments Pipeline, and lands in Snowflake."
+    },
+    "gold_payments": {
+        "flow": [
+            "bronze_payments",
+            "silver_payments",
+            "gold_payments"
+        ],
+        "insights": "The bronze layer stores raw payment events. The silver layer performs data cleansing, validation, and standardization. The gold layer contains curated payment metrics for business reporting."
     }
 }

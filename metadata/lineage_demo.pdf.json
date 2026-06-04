@@ -1,0 +1,18 @@
+{
+    "gold_payments": {
+        "flow": [
+            "bronze_payments",
+            "silver_payments",
+            "gold_payments"
+        ],
+        "insights": "Data originates from Stripe, flows into bronze_payments for raw storage, is refined into silver_payments, and finalized in gold_payments before being delivered to Snowflake."
+    },
+    "payments_data": {
+        "flow": [
+            "bronze_payments",
+            "silver_payments",
+            "gold_payments"
+        ],
+        "insights": "Data from Stripe is processed through bronze, silver, and gold layers in Snowflake, incorporating data quality checks for null transaction validation, duplicate payment checks, and currency validation."
+    }
+}

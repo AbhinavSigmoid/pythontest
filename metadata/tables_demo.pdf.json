@@ -1,0 +1,20 @@
+[
+    {
+        "table_name": "bronze_payments",
+        "owner": "Payments Engineering Team",
+        "contains_pii": false,
+        "columns": []
+    },
+    {
+        "table_name": "silver_payments",
+        "owner": "Payments Engineering Team",
+        "contains_pii": false,
+        "columns": []
+    },
+    {
+        "table_name": "gold_payments",
+        "owner": "Payments Engineering Team",
+        "contains_pii": false,
+        "columns": []
+    }
+]

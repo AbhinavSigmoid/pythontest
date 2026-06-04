@@ -6,9 +6,21 @@
         "sla": "Met"
     },
     "recent_incident": {
-        "incident_id": "INC-2026-001",
-        "pipeline": "monthly_executive_etl",
+        "incident_id": "INC-2025-101",
+        "pipeline": "Payments Pipeline",
         "status": "Resolved",
-        "impact": "On 2026-03-05, the 'monthly_executive_etl' pipeline failed due to a data type mismatch error in the 'fact_sales' table, causing a delay in the generation of the executive monthly revenue report. The issue was traced to an upstream ingestion process and resolved within 4 hours, resulting in a delayed but accurate report."
+        "impact": "Payment dashboard metrics were delayed for 12 minutes due to an upstream source outage."
+    },
+    "payments_pipeline": {
+        "status": "Healthy",
+        "availability": "99.98%",
+        "last_run": "Success",
+        "sla": "Met"
+    },
+    "Payments Pipeline": {
+        "status": null,
+        "availability": null,
+        "last_run": null,
+        "sla": null
     }
 }

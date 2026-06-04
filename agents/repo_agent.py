@@ -164,7 +164,7 @@ def ingest_github_repo(repo_url):
 
     # 5. Metadata extraction using Gemini AI
     analysis_success = False
-    load_dotenv()
+    load_dotenv(override=True)
     api_key = os.getenv("GEMINI_API_KEY")
     
     if api_key:

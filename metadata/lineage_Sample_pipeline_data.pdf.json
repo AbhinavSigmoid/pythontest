@@ -1,0 +1,9 @@
+{
+    "Payments Pipeline": {
+        "flow": [
+            "Stripe",
+            "Snowflake"
+        ],
+        "insights": "Data flows from Stripe (source system) to Snowflake (destination system) via the Payments Pipeline."
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "Payments_Pipeline": {
+        "flow": [
+            "bronze_payments",
+            "silver_payments",
+            "gold_payments"
+        ],
+        "insights": "The bronze layer stores raw payment events. The silver layer performs data cleansing, validation, and standardization. The gold layer contains curated payment metrics for business reporting."
+    }
+}
