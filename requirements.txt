@@ -10,3 +10,6 @@ python-dotenv
 watchdog
 pandas
 google-generativeai
+plotly
+SpeechRecognition
+pydub
