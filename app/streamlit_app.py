@@ -15,6 +15,7 @@ import streamlit as st
 
 from rag.chatbot import ask_question
 from agents.health_agent import get_pipeline_health
+from rag.voice_transcriber import transcribe_audio
 
 BASE_DIR = os.path.dirname(
     os.path.dirname(
@@ -597,9 +598,68 @@ if page == "🤖 AI Assistant":
         with st.chat_message(message["role"]):
             st.write(message["content"])
 
-    query = st.chat_input("Ask about pipelines, metadata, lineage, SLAs...")
+    # =====================================
+    # VOICE INPUT SECTION
+    # =====================================
 
-    if quick_query:
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #EEF2FF 0%, #F0FDF4 100%);
+        border: 1.5px solid #C7D2FE;
+        border-radius: 16px;
+        padding: 18px 22px;
+        margin-bottom: 14px;
+    ">
+        <p style="margin:0 0 10px 0; font-weight:600; color:#4338CA; font-size:15px;">
+            🎙️ Voice Input — Speak your question
+        </p>
+        <p style="margin:0; color:#64748B; font-size:13px;">
+            Click the microphone below, record your question, then click Stop.
+            Your speech will be transcribed and sent to the assistant automatically.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    audio_value = st.audio_input(
+        label="Record your question",
+        key="voice_input"
+    )
+
+    voice_query = None
+
+    if audio_value is not None:
+        import hashlib
+        audio_bytes = audio_value.read()
+        audio_hash  = hashlib.md5(audio_bytes).hexdigest()
+
+        if "last_voice_hash" not in st.session_state:
+            st.session_state.last_voice_hash = None
+
+        if audio_hash != st.session_state.last_voice_hash:
+            with st.spinner("🎙️ Transcribing your voice..."):
+                transcribed = transcribe_audio(audio_bytes)
+
+            if transcribed and not transcribed.startswith("[Voice Error"):
+                st.success(f"✅ Transcribed: *\"{transcribed}\"*")
+                voice_query = transcribed
+                st.session_state.last_voice_hash = audio_hash
+            elif transcribed.startswith("[Voice Error"):
+                st.error(transcribed)
+            else:
+                st.warning("⚠️ Could not understand audio. Please speak clearly and try again.")
+
+    st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+
+    # =====================================
+    # TEXT INPUT SECTION
+    # =====================================
+
+    query = st.chat_input("Or type your question about pipelines, metadata, lineage, SLAs...")
+
+    # Voice query takes priority if spoken; else use quick_query pill; else typed query
+    if voice_query:
+        query = voice_query
+    elif quick_query:
         query = quick_query
 
     if query:
