@@ -35,7 +35,7 @@ def ask_question(
             "Gemini API key is not configured. "
             "Check Streamlit Secrets."
         )
-
+    print("GEMINI FOUND:", bool(api_key))
     genai.configure(
         api_key=api_key
     )

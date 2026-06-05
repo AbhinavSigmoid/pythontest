@@ -1,6 +1,7 @@
 import os
 import boto3
 from dotenv import load_dotenv
+import streamlit as st
 
 load_dotenv(override=True)
 
@@ -15,9 +16,20 @@ def get_env_var(key):
 
 def get_s3_client():
 
-    aws_access_key = get_env_var("AWS_ACCESS_KEY_ID")
-    aws_secret_key = get_env_var("AWS_SECRET_ACCESS_KEY")
-    region = get_env_var("AWS_REGION")
+    aws_access_key = (
+        os.getenv("AWS_ACCESS_KEY_ID")
+        or st.secrets.get("AWS_ACCESS_KEY_ID")
+    )
+
+    aws_secret_key = (
+        os.getenv("AWS_SECRET_ACCESS_KEY")
+        or st.secrets.get("AWS_SECRET_ACCESS_KEY")
+    )
+
+    region = (
+        os.getenv("AWS_REGION")
+        or st.secrets.get("AWS_REGION")
+    )
 
     if aws_access_key and aws_secret_key:
 
