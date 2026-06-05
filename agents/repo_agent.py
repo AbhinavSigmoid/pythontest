@@ -165,6 +165,13 @@ def ingest_github_repo(repo_url):
     # 5. Metadata extraction using Gemini AI
     analysis_success = False
     load_dotenv(override=True)
+    try:
+        import streamlit as st
+        if hasattr(st, "secrets"):
+            for key in st.secrets.keys():
+                os.environ[key] = str(st.secrets[key])
+    except Exception:
+        pass
     api_key = os.getenv("GEMINI_API_KEY")
     
     if api_key:

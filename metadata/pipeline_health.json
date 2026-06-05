@@ -12,10 +12,10 @@
         "impact": "Inventory dashboard was delayed by 20 minutes because of delayed warehouse data ingestion."
     },
     "payments_pipeline": {
-        "status": "Healthy",
-        "availability": "99.98%",
-        "last_run": "Success",
-        "sla": "Met"
+        "status": null,
+        "availability": null,
+        "last_run": null,
+        "sla": null
     },
     "Payments Pipeline": {
         "status": "Healthy",

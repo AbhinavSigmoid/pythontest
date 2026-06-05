@@ -13,6 +13,18 @@ sys.path.append(
 )
 
 import streamlit as st
+from dotenv import load_dotenv
+
+# Load local environment if present
+load_dotenv(override=True)
+
+# Export streamlit secrets to os.environ for compatibility with sub-modules using os.getenv
+try:
+    if hasattr(st, "secrets"):
+        for key in st.secrets.keys():
+            os.environ[key] = str(st.secrets[key])
+except Exception:
+    pass
 
 from rag.chatbot import ask_question
 from agents.health_agent import get_pipeline_health

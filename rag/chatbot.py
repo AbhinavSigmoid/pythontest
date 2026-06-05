@@ -6,16 +6,39 @@ import google.generativeai as genai
 from rag.retriever import search_documents
 
 
-def ask_question(question, active_pdf=None):
+def get_gemini_key():
+
+    try:
+        import streamlit as st
+        return (
+            os.getenv("GEMINI_API_KEY")
+            or st.secrets.get("GEMINI_API_KEY")
+        )
+    except Exception:
+        return os.getenv(
+            "GEMINI_API_KEY"
+        )
+
+
+def ask_question(
+    question,
+    active_pdf=None
+):
 
     load_dotenv(override=True)
 
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = get_gemini_key()
 
     if not api_key:
-        return "GEMINI_API_KEY not found in .env"
 
-    genai.configure(api_key=api_key)
+        return (
+            "Gemini API key is not configured. "
+            "Check Streamlit Secrets."
+        )
+
+    genai.configure(
+        api_key=api_key
+    )
 
     model = genai.GenerativeModel(
         "gemini-2.5-flash"
@@ -31,26 +54,33 @@ def ask_question(question, active_pdf=None):
 
     for item in results:
 
-        context += item["content"] + "\n\n"
-        sources.append(item["source"])
+        context += (
+            item["content"]
+            + "\n\n"
+        )
+
+        sources.append(
+            item["source"]
+        )
 
     if not context.strip():
-        return "No relevant information found in the uploaded document."
+
+        return (
+            "No relevant information found "
+            "in the uploaded document."
+        )
 
     prompt = f"""
 You are a Senior Data Engineering Assistant.
 
 Use ONLY the provided context.
 
-Provide clear, professional answers.
+If the answer is present,
+provide a direct answer.
 
-If available, include:
-- Direct answer
-- Relevant details
-- Business impact
-- Related pipeline information
+If the answer is not present,
+say:
 
-If the answer is not present in the context, say:
 'I could not find that information in the uploaded document.'
 
 Context:
@@ -66,7 +96,9 @@ Question:
             prompt
         )
 
-        source_text = "\n\nSources:\n"
+        source_text = (
+            "\n\nSources:\n"
+        )
 
         for source in set(sources):
 
@@ -75,8 +107,8 @@ Question:
             )
 
         return (
-            response.text +
-            source_text
+            response.text
+            + source_text
         )
 
     except Exception as e:

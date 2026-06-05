@@ -23,6 +23,13 @@ def extract_and_update_metadata(file_path, pdf_text):
     """
     from dotenv import load_dotenv
     load_dotenv(override=True)
+    try:
+        import streamlit as st
+        if hasattr(st, "secrets"):
+            for key in st.secrets.keys():
+                os.environ[key] = str(st.secrets[key])
+    except Exception:
+        pass
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         print("GEMINI_API_KEY is not set. Skipping metadata extraction.")

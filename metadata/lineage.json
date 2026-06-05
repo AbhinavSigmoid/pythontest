@@ -38,11 +38,11 @@
     },
     "payments_pipeline": {
         "flow": [
-            "bronze_payments",
-            "silver_payments",
-            "gold_payments"
+            "Stripe",
+            "payments_pipeline",
+            "Snowflake"
         ],
-        "insights": "The bronze layer stores raw payment events. The silver layer performs data cleansing, validation, and standardization. The gold layer contains curated payment metrics for business reporting."
+        "insights": "Data flows from Stripe through the Payments Pipeline to Snowflake."
     },
     "Payments Pipeline": {
         "flow": [
