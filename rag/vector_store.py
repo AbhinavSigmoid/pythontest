@@ -12,22 +12,19 @@ def store_chunks(chunks, embeddings):
         name="de_documents"
     )
 
-    try:
-
-        existing = collection.get()
-
-        if existing["ids"]:
-
-            collection.delete(
-                ids=existing["ids"]
-            )
-
-            print(
-                "Old documents cleared"
-            )
-
-    except Exception:
-        pass
+    if chunks:
+        import os
+        file_name = chunks[0]["file_name"]
+        basename = os.path.basename(file_name)
+        try:
+            # Delete any existing chunks for this file to avoid duplicates
+            collection.delete(where={"source": file_name})
+            collection.delete(where={"source": basename})
+            collection.delete(where={"source": os.path.join("uploads", basename)})
+            collection.delete(where={"source": os.path.abspath(file_name)})
+            print(f"Old chunks for '{basename}' cleared")
+        except Exception as e:
+            print(f"Error clearing old chunks for '{basename}': {e}")
 
     ids = []
     documents = []

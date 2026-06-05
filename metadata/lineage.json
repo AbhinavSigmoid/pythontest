@@ -58,7 +58,7 @@
             "silver_payments",
             "gold_payments"
         ],
-        "insights": "The bronze layer stores raw payment events. The silver layer performs data cleansing, validation, and standardization. The gold layer contains curated payment metrics for business reporting."
+        "insights": "This pipeline processes raw payment events in the bronze layer, performs data cleansing, validation, and standardization in the silver layer, and curates payment metrics for business reporting in the gold layer."
     },
     "Inventory Analytics Pipeline": {
         "flow": [

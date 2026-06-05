@@ -35,6 +35,7 @@ def ask_question(
             "Gemini API key is not configured. "
             "Check Streamlit Secrets."
         )
+
     print("GEMINI FOUND:", bool(api_key))
     genai.configure(
         api_key=api_key
@@ -51,6 +52,7 @@ def ask_question(
 
     context = ""
     sources = []
+    fallback_used = False
 
     for item in results:
 
@@ -63,6 +65,23 @@ def ask_question(
             item["source"]
         )
 
+    # Fallback to search all documents if no results found in the active PDF
+    if not context.strip() and active_pdf:
+        fallback_results = search_documents(
+            question,
+            source_file=None
+        )
+        for item in fallback_results:
+            context += (
+                item["content"]
+                + "\n\n"
+            )
+            sources.append(
+                item["source"]
+            )
+        if context.strip():
+            fallback_used = True
+
     if not context.strip():
 
         return (
@@ -73,15 +92,11 @@ def ask_question(
     prompt = f"""
 You are a Senior Data Engineering Assistant.
 
-Use ONLY the provided context.
-
-If the answer is present,
-provide a direct answer.
-
-If the answer is not present,
-say:
-
-'I could not find that information in the uploaded document.'
+Instructions:
+1. Answer the question using ONLY the provided context. Do not make up information or use outside knowledge.
+2. If the user asks for the SLA, look for parameters like SLA, Availability Target, Availability SLA, or Maximum Delay in the context, and report them.
+3. Be professional and direct.
+4. If the answer is not present in the context, respond with exactly: 'I could not find that information in the uploaded document.'
 
 Context:
 {context}
@@ -105,6 +120,9 @@ Question:
             source_text += (
                 f"- {os.path.basename(source)}\n"
             )
+
+        if fallback_used:
+            source_text += "\n*(Note: This information was not found in the active document, but was retrieved from the sources listed above.)*"
 
         return (
             response.text
