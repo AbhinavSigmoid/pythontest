@@ -52,7 +52,8 @@ def store_chunks(chunks, embeddings):
         embeddings=embeddings.tolist(),
         metadatas=metadatas
     )
-
+    count = collection.count()
+    print(f"TOTAL CHUNKS IN CHROMADB = {count}")
     print(
         "Chunks stored successfully"
     )
