@@ -92,5 +92,38 @@
             "total_amount",
             "payment_status"
         ]
+    },
+    {
+        "table_name": "bronze_inventory",
+        "owner": null,
+        "contains_pii": false,
+        "columns": [
+            "item_id",
+            "warehouse_id",
+            "quantity",
+            "transaction_timestamp"
+        ]
+    },
+    {
+        "table_name": "silver_inventory",
+        "owner": null,
+        "contains_pii": false,
+        "columns": [
+            "item_id",
+            "warehouse_id",
+            "available_stock",
+            "reserved_stock"
+        ]
+    },
+    {
+        "table_name": "gold_inventory",
+        "owner": null,
+        "contains_pii": false,
+        "columns": [
+            "item_id",
+            "warehouse_id",
+            "stock_status",
+            "reorder_flag"
+        ]
     }
 ]

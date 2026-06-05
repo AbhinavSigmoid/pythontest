@@ -6,10 +6,10 @@
         "sla": "Met"
     },
     "recent_incident": {
-        "incident_id": "INC-2025-101",
-        "pipeline": "Payments Pipeline",
+        "incident_id": "INC-2025-205",
+        "pipeline": "Inventory Analytics Pipeline",
         "status": "Resolved",
-        "impact": "Payment dashboard metrics were delayed for 12 minutes due to an upstream source outage."
+        "impact": "Inventory dashboard was delayed by 20 minutes because of delayed warehouse data ingestion."
     },
     "payments_pipeline": {
         "status": "Healthy",
@@ -18,9 +18,15 @@
         "sla": "Met"
     },
     "Payments Pipeline": {
-        "status": null,
-        "availability": null,
-        "last_run": null,
-        "sla": null
+        "status": "Healthy",
+        "availability": "99.98%",
+        "last_run": "Success",
+        "sla": "Met"
+    },
+    "Inventory Analytics Pipeline": {
+        "status": "Healthy",
+        "availability": "99.95%",
+        "last_run": "Success",
+        "sla": "Met"
     }
 }
