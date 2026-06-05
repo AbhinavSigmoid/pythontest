@@ -8,7 +8,7 @@ from agents.metadata_agent import (
 from rag.chatbot import ask_question
 
 
-def route_query(query):
+def route_query(query, active_pdf=None):
 
     query_lower = query.lower()
 
@@ -76,4 +76,4 @@ def route_query(query):
     # RAG FALLBACK
     # =====================
 
-    return ask_question(query)
+    return ask_question(query, active_pdf=active_pdf)

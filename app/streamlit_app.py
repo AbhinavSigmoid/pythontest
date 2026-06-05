@@ -28,6 +28,7 @@ except Exception:
 
 from rag.chatbot import ask_question
 from agents.health_agent import get_pipeline_health
+from agents.router import route_query
 
 # Import ingestion scripts
 try:
@@ -70,21 +71,39 @@ if "theme_mode" not in st.session_state:
 if "active_pdf" not in st.session_state:
     st.session_state.active_pdf = None
 
-# Auto-initialize ChromaDB from local uploads at startup if empty (e.g. fresh deployment)
+# Auto-initialize ChromaDB from local docs and uploads at startup if empty (e.g. fresh deployment)
 if "db_auto_indexed" not in st.session_state:
     try:
         from rag.retriever import DB_PATH
         import chromadb
         client = chromadb.PersistentClient(path=DB_PATH)
         collection = client.get_or_create_collection(name="de_documents")
-        if collection.count() == 0 and os.path.exists(UPLOAD_DIR):
-            pdfs = [f for f in os.listdir(UPLOAD_DIR) if f.endswith(".pdf")]
-            if pdfs:
-                st.toast("Initializing database index from default runbooks...", icon="⚙️")
-                for pdf in pdfs:
-                    pdf_path = os.path.join(UPLOAD_DIR, pdf)
-                    process_pdf(pdf_path)
-                st.toast("Database index initialized successfully!", icon="✅")
+        if collection.count() == 0:
+            # 1. Index TXT documents from docs/
+            docs_dir = os.path.join(BASE_DIR, "docs")
+            if os.path.exists(docs_dir):
+                from ingestion.txt_loader import load_documents
+                from ingestion.chunker import create_chunks
+                from ingestion.embeddings import create_embeddings
+                from rag.vector_store import store_chunks
+                
+                txt_docs = load_documents(docs_dir)
+                if txt_docs:
+                    st.toast("Initializing database index from documentation...", icon="⚙️")
+                    chunks = create_chunks(txt_docs)
+                    embeddings = create_embeddings(chunks)
+                    store_chunks(chunks, embeddings)
+            
+            # 2. Index PDF runbooks from uploads/
+            if os.path.exists(UPLOAD_DIR):
+                pdfs = [f for f in os.listdir(UPLOAD_DIR) if f.endswith(".pdf")]
+                if pdfs:
+                    st.toast("Initializing database index from default runbooks...", icon="⚙️")
+                    for pdf in pdfs:
+                        pdf_path = os.path.join(UPLOAD_DIR, pdf)
+                        process_pdf(pdf_path)
+            
+            st.toast("Database index initialized successfully!", icon="✅")
     except Exception as e:
         print("Failed to auto-initialize database index at startup:", e)
     st.session_state["db_auto_indexed"] = True
@@ -1213,7 +1232,7 @@ if page == "AI Assistant":
         with st.chat_message("user"):
             st.write(query)
 
-        answer = ask_question(query, active_pdf=st.session_state.get("active_pdf"))
+        answer = route_query(query, active_pdf=st.session_state.get("active_pdf"))
 
         st.session_state.messages.append(
             {

@@ -730,7 +730,7 @@ streamlit run streamlit_app.py
 
 > **Note on Running Directory**: The project contains dynamic absolute path resolution routines using `BASE_DIR`. Therefore, all file loaders and databases will resolve correctly regardless of whether the app is run from the root folder or the `app/` folder.
 
-Open your browser at: **http://localhost:8501**
+Open your browser at: **https://sigma-ai-assistant.streamlit.app/**
 
 ---
 

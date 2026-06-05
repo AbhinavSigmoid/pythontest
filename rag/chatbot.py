@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 
 from rag.retriever import search_documents
-
+print("CHATBOT VERSION = 2026-06-05")
 
 def get_gemini_key():
 
@@ -49,6 +49,11 @@ def ask_question(
         question,
         source_file=active_pdf
     )
+    print("=" * 60)
+    print("QUESTION:", question)
+    print("ACTIVE PDF:", active_pdf)
+    print("RESULT COUNT:", len(results))
+    print("=" * 60)
 
     context = ""
     sources = []
@@ -81,7 +86,7 @@ def ask_question(
             )
         if context.strip():
             fallback_used = True
-
+    print("CONTEXT LENGTH:", len(context))
     if not context.strip():
 
         return (
